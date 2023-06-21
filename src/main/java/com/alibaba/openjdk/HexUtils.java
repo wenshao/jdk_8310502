@@ -11,10 +11,10 @@ public class HexUtils {
     public static String toHexString(int i) {
         char[] hex256 = UUIDUtils.HEX256;
 
-        int i0 = (i >> 24) & 255;
-        int i1 = (i >> 16) & 255;
-        int i2 = (i >> 8) & 255;
-        int i3 = i & 255;
+        int i0 = (i >> 24) & 0xff;
+        int i1 = (i >> 16) & 0xff;
+        int i2 = (i >> 8) & 0xff;
+        int i3 = i & 0xff;
 
         char c0 = hex256[i0];
         char c1 = hex256[i1];

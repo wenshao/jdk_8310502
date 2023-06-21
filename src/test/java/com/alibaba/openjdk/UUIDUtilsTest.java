@@ -21,4 +21,19 @@ public class UUIDUtilsTest {
             assertEquals(new String(uuid.toString().getBytes()), new String(UUIDUtils.fastUUID2(uuid).getBytes()));
         }
     }
+
+    @Test
+    public void printHex256() {
+        final char[] hex256 = UUIDUtils.HEX256;
+        for (int i = 0; i < UUIDUtils.HEX256.length; i++) {
+            if (i != 0) {
+                System.out.print(", ");
+            }
+            if (i != 0 && i % 10 == 0) {
+                System.out.println();
+            }
+            int ch = hex256[i];
+            System.out.print("0x" + Integer.toHexString(ch));
+        }
+    }
 }
