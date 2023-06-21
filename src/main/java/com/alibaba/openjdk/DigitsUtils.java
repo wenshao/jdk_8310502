@@ -2,16 +2,10 @@ package com.alibaba.openjdk;
 
 import com.alibaba.fastjson2.util.JDKUtils;
 
-import java.nio.charset.StandardCharsets;
-
 import static com.alibaba.fastjson2.util.JDKUtils.LATIN1;
 
 public class DigitsUtils {
     public static final int[] DIGITS_K = new int[1000];
-
-    private static final byte[] MIN_INT_BYTES = "-2147483648".getBytes();
-    private static final byte[] MIN_INT_BYTES_UTF16 = "-2147483648".getBytes(StandardCharsets.UTF_16);
-
     static {
         for (int i = 0; i < DIGITS_K.length; i++) {
             DIGITS_K[i] = (i < 10 ? (2 << 24) : i < 100 ? (1 << 24) : 0)
