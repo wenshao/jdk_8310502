@@ -32,6 +32,7 @@ public class UUIDUtilsBenchmark {
                 .warmupIterations(3)
                 .forks(1)
                 .threads(1)
+                .threads(16)
                 .build();
         new Runner(options).run();
     }
