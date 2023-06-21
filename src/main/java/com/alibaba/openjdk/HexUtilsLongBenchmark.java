@@ -11,48 +11,71 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class HexUtilsBenchmark {
-    static int i4;
-    static int i2;
-    static int i1;
+public class HexUtilsLongBenchmark {
+    static long i8;
+    static long i6;
+    static long i4;
+    static long i2;
+    static long i1;
+
     static {
         Random r = new Random();
         i1 = r.nextInt(127);
-        i2 = Short.MAX_VALUE / 2 + i1;
-        i4 = Integer.MAX_VALUE / 2 + r.nextInt(Short.MAX_VALUE);
+        i2 = (1 << 15) / 2 + i1;
+        i4 = (1L << 31) + r.nextInt(Integer.MAX_VALUE);
+        i6 = (1L << 47) + r.nextInt(Integer.MAX_VALUE);
+        i8 = (1L << 63) + r.nextInt(Integer.MAX_VALUE);
     }
-//
-//    @Benchmark
-//    public void full_jdk(Blackhole bh) {
-//        for (long i = 1; i < Integer.MAX_VALUE; i <<= 1) {
-//            int v = (int) i;
-//            bh.consume(Integer.toHexString(v));
-//            bh.consume(Integer.toHexString(-v));
-//        }
-//    }
-//
-//    @Benchmark
-//    public void full_fast(Blackhole bh) {
-//        for (long i = 1; i < Integer.MAX_VALUE; i <<= 1) {
-//            int v = (int) i;
-//            bh.consume(HexUtils.toHexString(v));
-//            bh.consume(HexUtils.toHexString(-v));
-//        }
-//    }
+
+    @Benchmark
+    public void i8_jdk(Blackhole bh) {
+        for (int i = 0; i < 100; i++) {
+            long v = i8;
+            bh.consume(Long.toHexString(v));
+            bh.consume(Long.toHexString(-v));
+        }
+    }
+
+    @Benchmark
+    public void i8_fast(Blackhole bh) {
+        for (int i = 0; i < 100; i++) {
+            long v = i8;
+            bh.consume(HexUtils.toHexString(v));
+            bh.consume(HexUtils.toHexString(-v));
+        }
+    }
+
+    @Benchmark
+    public void i6_jdk(Blackhole bh) {
+        for (int i = 0; i < 100; i++) {
+            long v = i6;
+            bh.consume(Long.toHexString(v));
+            bh.consume(Long.toHexString(-v));
+        }
+    }
+
+    @Benchmark
+    public void i6_fast(Blackhole bh) {
+        for (int i = 0; i < 100; i++) {
+            long v = i6;
+            bh.consume(HexUtils.toHexString(v));
+            bh.consume(HexUtils.toHexString(-v));
+        }
+    }
 
     @Benchmark
     public void i4_jdk(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i4;
-            bh.consume(Integer.toHexString(v));
-            bh.consume(Integer.toHexString(-v));
+            long v = i4;
+            bh.consume(Long.toHexString(v));
+            bh.consume(Long.toHexString(-v));
         }
     }
 
     @Benchmark
     public void i4_fast(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i4;
+            long v = i4;
             bh.consume(HexUtils.toHexString(v));
             bh.consume(HexUtils.toHexString(-v));
         }
@@ -61,16 +84,16 @@ public class HexUtilsBenchmark {
     @Benchmark
     public void i2_jdk(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i2;
-            bh.consume(Integer.toHexString(v));
-            bh.consume(Integer.toHexString(-v));
+            long v = i2;
+            bh.consume(Long.toHexString(v));
+            bh.consume(Long.toHexString(-v));
         }
     }
 
     @Benchmark
     public void i2_fast(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i2;
+            long v = i2;
             bh.consume(HexUtils.toHexString(v));
             bh.consume(HexUtils.toHexString(-v));
         }
@@ -79,16 +102,16 @@ public class HexUtilsBenchmark {
     @Benchmark
     public void i1_jdk(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i1;
-            bh.consume(Integer.toHexString(v));
-            bh.consume(Integer.toHexString(-v));
+            long v = i1;
+            bh.consume(Long.toHexString(v));
+            bh.consume(Long.toHexString(-v));
         }
     }
 
     @Benchmark
     public void i1_fast(Blackhole bh) {
         for (int i = 0; i < 100; i++) {
-            int v = i1;
+            long v = i1;
             bh.consume(HexUtils.toHexString(v));
             bh.consume(HexUtils.toHexString(-v));
         }
@@ -96,7 +119,7 @@ public class HexUtilsBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options options = new OptionsBuilder()
-                .include(HexUtilsBenchmark.class.getName())
+                .include(HexUtilsLongBenchmark.class.getName())
                 .mode(Mode.Throughput)
                 .timeUnit(TimeUnit.MILLISECONDS)
                 .warmupIterations(3)
