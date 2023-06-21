@@ -23,6 +23,17 @@ public class UUIDUtilsTest {
     }
 
     @Test
+    public void testx() {
+        UUID uuid = UUID.randomUUID();
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000_000_000; i++) {
+            JMH.BH.consume(UUIDUtils.fastUUID(uuid));
+        }
+        long millis = System.currentTimeMillis() - start;
+        System.out.println("millis " + millis);
+    }
+
+    @Test
     public void printHex256() {
         final char[] hex256 = UUIDUtils.HEX256;
         for (int i = 0; i < UUIDUtils.HEX256.length; i++) {
