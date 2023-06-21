@@ -2,6 +2,7 @@ package com.alibaba.openjdk;
 
 import com.alibaba.fastjson2.util.JDKUtils;
 
+import java.nio.ByteOrder;
 import java.util.UUID;
 
 import static com.alibaba.fastjson2.util.JDKUtils.LATIN1;
@@ -52,14 +53,14 @@ public class UUIDUtils {
     }
 
     public static String fastUUID(UUID uuid) {
-        return fastUUID(uuid.getLeastSignificantBits(), uuid.getMostSignificantBits(), true);
+        return fastUUID0(uuid.getLeastSignificantBits(), uuid.getMostSignificantBits(), true);
     }
 
     public static String fastUUID2(UUID uuid) {
-        return fastUUID(uuid.getLeastSignificantBits(), uuid.getMostSignificantBits(), false);
+        return fastUUID0(uuid.getLeastSignificantBits(), uuid.getMostSignificantBits(), false);
     }
 
-    static String fastUUID(long lsb, long msb, boolean COMPACT_STRINGS) {
+    static String fastUUID0(long lsb, long msb, boolean COMPACT_STRINGS) {
         final char[] hex256 = HEX256;
         char i = hex256[((int) (msb >> 56)) & 0xff];
         char i1 = hex256[((int) (msb >> 48)) & 0xff];
@@ -78,93 +79,179 @@ public class UUIDUtils {
         char i14 = hex256[(((int) lsb) >> 8) & 0xff];
         char i15 = hex256[((int) lsb) & 0xff];
 
+        final byte[] buf;
+        final Byte coder;
+        final int charBytes;
+        final int off;
         if (COMPACT_STRINGS) {
-            byte[] bytes = new byte[36];
-            bytes[0] = (byte) (i >> 8);
-            bytes[1] = (byte) i;
-            bytes[2] = (byte) (i1 >> 8);
-            bytes[3] = (byte) i1;
-            bytes[4] = (byte) (i2 >> 8);
-            bytes[5] = (byte) i2;
-            bytes[6] = (byte) (i3 >> 8);
-            bytes[7] = (byte) i3;
-            bytes[8] = '-';
-            bytes[9] = (byte) (i4 >> 8);
-            bytes[10] = (byte) i4;
-            bytes[11] = (byte) (i5 >> 8);
-            bytes[12] = (byte) i5;
-            bytes[13] = '-';
-            bytes[14] = (byte) (i6 >> 8);
-            bytes[15] = (byte) i6;
-            bytes[16] = (byte) (i7 >> 8);
-            bytes[17] = (byte) i7;
-            bytes[18] = '-';
-            bytes[19] = (byte) (i8 >> 8);
-            bytes[20] = (byte) i8;
-            bytes[21] = (byte) (i9 >> 8);
-            bytes[22] = (byte) i9;
-            bytes[23] = '-';
-            bytes[24] = (byte) (i10 >> 8);
-            bytes[25] = (byte) i10;
-            bytes[26] = (byte) (i11 >> 8);
-            bytes[27] = (byte) i11;
-            bytes[28] = (byte) (i12 >> 8);
-            bytes[29] = (byte) i12;
-            bytes[30] = (byte) (i13 >> 8);
-            bytes[31] = (byte) i13;
-            bytes[32] = (byte) (i14 >> 8);
-            bytes[33] = (byte) i14;
-            bytes[34] = (byte) (i15 >> 8);
-            bytes[35] = (byte) i15;
-            return JDKUtils.STRING_CREATOR_JDK11.apply(bytes, LATIN1);
+            buf = new byte[36];
+            coder = LATIN1;
+            charBytes = 1;
+            off = 0;
         } else {
-            byte[] buf = new byte[72];
-            putChar(buf, 0, (byte) (i >> 8));
-            putChar(buf, 1, (byte) i);
-            putChar(buf, 2, (byte) (i1 >> 8));
-            putChar(buf, 3, (byte) i1);
-            putChar(buf, 4, (byte) (i2 >> 8));
-            putChar(buf, 5, (byte) i2);
-            putChar(buf, 6, (byte) (i3 >> 8));
-            putChar(buf, 7, (byte) i3);
-            putChar(buf, 8, '-');
-            putChar(buf, 9, (byte) (i4 >> 8));
-            putChar(buf, 10, (byte) i4);
-            putChar(buf, 11, (byte) (i5 >> 8));
-            putChar(buf, 12, (byte) i5);
-            putChar(buf, 13, '-');
-            putChar(buf, 14, (byte) (i6 >> 8));
-            putChar(buf, 15, (byte) i6);
-            putChar(buf, 16, (byte) (i7 >> 8));
-            putChar(buf, 17, (byte) i7);
-            putChar(buf, 18, '-');
-            putChar(buf, 19, (byte) (i8 >> 8));
-            putChar(buf, 20, (byte) i8);
-            putChar(buf, 21, (byte) (i9 >> 8));
-            putChar(buf, 22, (byte) i9);
-            putChar(buf, 23, '-');
-            putChar(buf, 24, (byte) (i10 >> 8));
-            putChar(buf, 25, (byte) i10);
-            putChar(buf, 26, (byte) (i11 >> 8));
-            putChar(buf, 27, (byte) i11);
-            putChar(buf, 28, (byte) (i12 >> 8));
-            putChar(buf, 29, (byte) i12);
-            putChar(buf, 30, (byte) (i13 >> 8));
-            putChar(buf, 31, (byte) i13);
-            putChar(buf, 32, (byte) (i14 >> 8));
-            putChar(buf, 33, (byte) i14);
-            putChar(buf, 34, (byte) (i15 >> 8));
-            putChar(buf, 35, (byte) i15);
-            return JDKUtils.STRING_CREATOR_JDK11.apply(buf, UTF16);
+            buf = new byte[72];
+            coder = UTF16;
+            charBytes = 2;
+            off = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? 1 : 0;
         }
+
+        buf[0 * charBytes + off] = (byte) (i >> 8);
+        buf[1 * charBytes + off] = (byte) i;
+        buf[2 * charBytes + off] = (byte) (i1 >> 8);
+        buf[3 * charBytes + off] = (byte) i1;
+        buf[4 * charBytes + off] = (byte) (i2 >> 8);
+        buf[5 * charBytes + off] = (byte) i2;
+        buf[6 * charBytes + off] = (byte) (i3 >> 8);
+        buf[7 * charBytes + off] = (byte) i3;
+        buf[8 * charBytes + off] = '-';
+        buf[9 * charBytes + off] = (byte) (i4 >> 8);
+        buf[10 * charBytes + off] = (byte) i4;
+        buf[11 * charBytes + off] = (byte) (i5 >> 8);
+        buf[12 * charBytes + off] = (byte) i5;
+        buf[13 * charBytes + off] = '-';
+        buf[14 * charBytes + off] = (byte) (i6 >> 8);
+        buf[15 * charBytes + off] = (byte) i6;
+        buf[16 * charBytes + off] = (byte) (i7 >> 8);
+        buf[17 * charBytes + off] = (byte) i7;
+        buf[18 * charBytes + off] = '-';
+        buf[19 * charBytes + off] = (byte) (i8 >> 8);
+        buf[20 * charBytes + off] = (byte) i8;
+        buf[21 * charBytes + off] = (byte) (i9 >> 8);
+        buf[22 * charBytes + off] = (byte) i9;
+        buf[23 * charBytes + off] = '-';
+        buf[24 * charBytes + off] = (byte) (i10 >> 8);
+        buf[25 * charBytes + off] = (byte) i10;
+        buf[26 * charBytes + off] = (byte) (i11 >> 8);
+        buf[27 * charBytes + off] = (byte) i11;
+        buf[28 * charBytes + off] = (byte) (i12 >> 8);
+        buf[29 * charBytes + off] = (byte) i12;
+        buf[30 * charBytes + off] = (byte) (i13 >> 8);
+        buf[31 * charBytes + off] = (byte) i13;
+        buf[32 * charBytes + off] = (byte) (i14 >> 8);
+        buf[33 * charBytes + off] = (byte) i14;
+        buf[34 * charBytes + off] = (byte) (i15 >> 8);
+        buf[35 * charBytes + off] = (byte) i15;
+
+        return JDKUtils.STRING_CREATOR_JDK11.apply(buf, coder);
     }
 
-    static final int HI_BYTE_SHIFT = 0;
-    static final int LO_BYTE_SHIFT = 8;
+    static String fastUUID0_x(long lsb, long msb, boolean COMPACT_STRINGS) {
+        final char[] hex256 = HEX256;
+        char i = hex256[((int) (msb >> 56)) & 0xff];
+        char i1 = hex256[((int) (msb >> 48)) & 0xff];
+        char i2 = hex256[((int) (msb >> 40)) & 0xff];
+        char i3 = hex256[((int) (msb >> 32)) & 0xff];
+        char i4 = hex256[(((int) msb) >> 24) & 0xff];
+        char i5 = hex256[(((int) msb) >> 16) & 0xff];
+        char i6 = hex256[(((int) msb) >> 8) & 0xff];
+        char i7 = hex256[((int) msb) & 0xff];
+        char i8 = hex256[(((int) (lsb >> 56))) & 0xff];
+        char i9 = hex256[(((int) (lsb >> 48))) & 0xff];
+        char i10 = hex256[(((int) (lsb >> 40))) & 0xff];
+        char i11 = hex256[((int) (lsb >> 32)) & 0xff];
+        char i12 = hex256[(((int) lsb) >> 24) & 0xff];
+        char i13 = hex256[(((int) lsb) >> 16) & 0xff];
+        char i14 = hex256[(((int) lsb) >> 8) & 0xff];
+        char i15 = hex256[((int) lsb) & 0xff];
+
+        byte[] buf;
+        Byte coder;
+        if (COMPACT_STRINGS) {
+            buf = new byte[36];
+            coder = LATIN1;
+
+            buf[0] = (byte) (i >> 8);
+            buf[1] = (byte) i;
+            buf[2] = (byte) (i1 >> 8);
+            buf[3] = (byte) i1;
+            buf[4] = (byte) (i2 >> 8);
+            buf[5] = (byte) i2;
+            buf[6] = (byte) (i3 >> 8);
+            buf[7] = (byte) i3;
+            buf[8] = '-';
+            buf[9] = (byte) (i4 >> 8);
+            buf[10] = (byte) i4;
+            buf[11] = (byte) (i5 >> 8);
+            buf[12] = (byte) i5;
+            buf[13] = '-';
+            buf[14] = (byte) (i6 >> 8);
+            buf[15] = (byte) i6;
+            buf[16] = (byte) (i7 >> 8);
+            buf[17] = (byte) i7;
+            buf[18] = '-';
+            buf[19] = (byte) (i8 >> 8);
+            buf[20] = (byte) i8;
+            buf[21] = (byte) (i9 >> 8);
+            buf[22] = (byte) i9;
+            buf[23] = '-';
+            buf[24] = (byte) (i10 >> 8);
+            buf[25] = (byte) i10;
+            buf[26] = (byte) (i11 >> 8);
+            buf[27] = (byte) i11;
+            buf[28] = (byte) (i12 >> 8);
+            buf[29] = (byte) i12;
+            buf[30] = (byte) (i13 >> 8);
+            buf[31] = (byte) i13;
+            buf[32] = (byte) (i14 >> 8);
+            buf[33] = (byte) i14;
+            buf[34] = (byte) (i15 >> 8);
+            buf[35] = (byte) i15;
+        } else {
+            buf = new byte[72];
+            coder = UTF16;
+
+            int off = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? 1 : 0;
+            buf[off] = (byte) (i >> 8);
+            buf[2 + off] = (byte) i;
+            buf[4 + off] = (byte) (i1 >> 8);
+            buf[6 + off] = (byte) i1;
+            buf[8 + off] = (byte) (i2 >> 8);
+            buf[10 + off] = (byte) i2;
+            buf[12 + off] = (byte) (i3 >> 8);
+            buf[14 + off] = (byte) i3;
+            buf[16 + off] = '-';
+            buf[18 + off] = (byte) (i4 >> 8);
+            buf[20 + off] = (byte) i4;
+            buf[22 + off] = (byte) (i5 >> 8);
+            buf[24 + off] = (byte) i5;
+            buf[26 + off] = '-';
+            buf[28 + off] = (byte) (i6 >> 8);
+            buf[30 + off] = (byte) i6;
+            buf[32 + off] = (byte) (i7 >> 8);
+            buf[34 + off] = (byte) i7;
+            buf[36 + off] = '-';
+            buf[38 + off] = (byte) (i8 >> 8);
+            buf[40 + off] = (byte) i8;
+            buf[42 + off] = (byte) (i9 >> 8);
+            buf[44 + off] = (byte) i9;
+            buf[46 + off] = '-';
+            buf[48 + off] = (byte) (i10 >> 8);
+            buf[50 + off] = (byte) i10;
+            buf[52 + off] = (byte) (i11 >> 8);
+            buf[54 + off] = (byte) i11;
+            buf[56 + off] = (byte) (i12 >> 8);
+            buf[58 + off] = (byte) i12;
+            buf[60 + off] = (byte) (i13 >> 8);
+            buf[62 + off] = (byte) i13;
+            buf[64 + off] = (byte) (i14 >> 8);
+            buf[66 + off] = (byte) i14;
+            buf[68 + off] = (byte) (i15 >> 8);
+            buf[70 + off] = (byte) i15;
+        }
+
+        return JDKUtils.STRING_CREATOR_JDK11.apply(buf, coder);
+    }
+
+    static final boolean bigEndian = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
 
     static void putChar(byte[] val, int index, int c) {
         index <<= 1;
-        val[index++] = (byte) (c >> HI_BYTE_SHIFT);
-        val[index] = (byte) (c >> LO_BYTE_SHIFT);
+        if (bigEndian) {
+            val[index] = (byte) (c >> 8);
+            val[index + 1] = (byte) c;
+        } else {
+            val[index] = (byte) c;
+            val[index + 1] = (byte) (c >> 8);
+        }
     }
 }
