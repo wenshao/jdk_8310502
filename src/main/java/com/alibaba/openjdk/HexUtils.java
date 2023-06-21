@@ -2,9 +2,10 @@ package com.alibaba.openjdk;
 
 import com.alibaba.fastjson2.util.JDKUtils;
 
+import java.nio.ByteOrder;
+
 import static com.alibaba.fastjson2.util.JDKUtils.LATIN1;
 import static com.alibaba.fastjson2.util.JDKUtils.UTF16;
-import static com.alibaba.openjdk.UUIDUtils.putChar;
 
 public class HexUtils {
     static final boolean COMPACT_STRINGS = true;
@@ -21,119 +22,74 @@ public class HexUtils {
         char c2 = hex256[i2];
         char c3 = hex256[i3];
 
-        byte[] bytes;
+        final byte coder;
+        final int charSize;
+        final int off;
         if (COMPACT_STRINGS) {
-            if ((i >> 4) == 0) {
-                bytes = new byte[1];
-                bytes[0] = (byte) c3;
-            } else if ((i >> 8) == 0) {
-                bytes = new byte[2];
-                bytes[0] = (byte) (c3 >> 8);
-                bytes[1] = (byte) c3;
-            } else if ((i >> 12) == 0) {
-                bytes = new byte[3];
-                bytes[0] = (byte) c2;
-                bytes[1] = (byte) (c3 >> 8);
-                bytes[2] = (byte) c3;
-            } else if ((i >> 16) == 0) {
-                bytes = new byte[4];
-                bytes[0] = (byte) (c2 >> 8);
-                bytes[1] = (byte) c2;
-                bytes[2] = (byte) (c3 >> 8);
-                bytes[3] = (byte) c3;
-            } else if ((i >> 20) == 0) {
-                bytes = new byte[5];
-                bytes[0] = (byte) c1;
-                bytes[1] = (byte) (c2 >> 8);
-                bytes[2] = (byte) c2;
-                bytes[3] = (byte) (c3 >> 8);
-                bytes[4] = (byte) c3;
-            } else if ((i >> 24) == 0) {
-                bytes = new byte[6];
-                bytes[0] = (byte) (c1 >> 8);
-                bytes[1] = (byte) c1;
-                bytes[2] = (byte) (c2 >> 8);
-                bytes[3] = (byte) c2;
-                bytes[4] = (byte) (c3 >> 8);
-                bytes[5] = (byte) c3;
-            } else if ((i >> 28) == 0) {
-                bytes = new byte[7];
-                bytes[0] = (byte) c0;
-                bytes[1] = (byte) (c1 >> 8);
-                bytes[2] = (byte) c1;
-                bytes[3] = (byte) (c2 >> 8);
-                bytes[4] = (byte) c2;
-                bytes[5] = (byte) (c3 >> 8);
-                bytes[6] = (byte) c3;
-            } else {
-                bytes = new byte[8];
-                bytes[0] = (byte) (c0 >> 8);
-                bytes[1] = (byte) c0;
-                bytes[2] = (byte) (c1 >> 8);
-                bytes[3] = (byte) c1;
-                bytes[4] = (byte) (c2 >> 8);
-                bytes[5] = (byte) c2;
-                bytes[6] = (byte) (c3 >> 8);
-                bytes[7] = (byte) c3;
-            }
-
-            return JDKUtils.STRING_CREATOR_JDK11.apply(bytes, LATIN1);
+            coder = LATIN1;
+            charSize = 1;
+            off = 0;
         } else {
-            if ((i >> 4) == 0) {
-                bytes = new byte[2];
-                putChar(bytes, 0,  (byte) c3);
-            } else if ((i >> 8) == 0) {
-                bytes = new byte[4];
-                putChar(bytes, 0, (byte) (c3 >> 8));
-                putChar(bytes, 1, (byte) c3);
-            } else if ((i >> 12) == 0) {
-                bytes = new byte[6];
-                putChar(bytes, 0, (byte) c2);
-                putChar(bytes, 1, (byte) (c3 >> 8));
-                putChar(bytes, 2, (byte) c3);
-            } else if ((i >> 16) == 0) {
-                bytes = new byte[8];
-                putChar(bytes, 0, (byte) (c2 >> 8));
-                putChar(bytes, 1, (byte) c2);
-                putChar(bytes, 2, (byte) (c3 >> 8));
-                putChar(bytes, 3, (byte) c3);
-            } else if ((i >> 20) == 0) {
-                bytes = new byte[10];
-                putChar(bytes, 0, (byte) c1);
-                putChar(bytes, 1, (byte) (c2 >> 8));
-                putChar(bytes, 2, (byte) c2);
-                putChar(bytes, 3, (byte) (c3 >> 8));
-                putChar(bytes, 4, (byte) c3);
-            } else if ((i >> 24) == 0) {
-                bytes = new byte[12];
-                putChar(bytes, 0, (byte) (c1 >> 8));
-                putChar(bytes, 1, (byte) c1);
-                putChar(bytes, 2, (byte) (c2 >> 8));
-                putChar(bytes, 3, (byte) c2);
-                putChar(bytes, 4, (byte) (c3 >> 8));
-                putChar(bytes, 5, (byte) c3);
-            } else if ((i >> 28) == 0) {
-                bytes = new byte[14];
-                putChar(bytes, 0, (byte) c0);
-                putChar(bytes, 1, (byte) (c1 >> 8));
-                putChar(bytes, 2, (byte) c1);
-                putChar(bytes, 3, (byte) (c2 >> 8));
-                putChar(bytes, 4, (byte) c2);
-                putChar(bytes, 5, (byte) (c3 >> 8));
-                putChar(bytes, 6, (byte) c3);
-            } else {
-                bytes = new byte[16];
-                putChar(bytes, 0, (byte) (c0 >> 8));
-                putChar(bytes, 1, (byte) c0);
-                putChar(bytes, 2, (byte) (c1 >> 8));
-                putChar(bytes, 3, (byte) c1);
-                putChar(bytes, 4, (byte) (c2 >> 8));
-                putChar(bytes, 5, (byte) c2);
-                putChar(bytes, 6, (byte) (c3 >> 8));
-                putChar(bytes, 7, (byte) c3);
-            }
-
-            return JDKUtils.STRING_CREATOR_JDK11.apply(bytes, UTF16);
+            coder = UTF16;
+            charSize = 2;
+            off = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? 1 : 0;
         }
+
+        byte[] bytes;
+        if ((i >> 4) == 0) {
+            bytes = new byte[1 * charSize];
+            bytes[0 * charSize + off] = (byte) c3;
+        } else if ((i >> 8) == 0) {
+            bytes = new byte[2 * charSize];
+            bytes[0 * charSize + off] = (byte) (c3 >> 8);
+            bytes[1 * charSize + off] = (byte) c3;
+        } else if ((i >> 12) == 0) {
+            bytes = new byte[3 * charSize];
+            bytes[0 * charSize + off] = (byte) c2;
+            bytes[1 * charSize + off] = (byte) (c3 >> 8);
+            bytes[2 * charSize + off] = (byte) c3;
+        } else if ((i >> 16) == 0) {
+            bytes = new byte[4 * charSize];
+            bytes[0 * charSize + off] = (byte) (c2 >> 8);
+            bytes[1 * charSize + off] = (byte) c2;
+            bytes[2 * charSize + off] = (byte) (c3 >> 8);
+            bytes[3 * charSize + off] = (byte) c3;
+        } else if ((i >> 20) == 0) {
+            bytes = new byte[5 * charSize];
+            bytes[0 * charSize + off] = (byte) c1;
+            bytes[1 * charSize + off] = (byte) (c2 >> 8);
+            bytes[2 * charSize + off] = (byte) c2;
+            bytes[3 * charSize + off] = (byte) (c3 >> 8);
+            bytes[4 * charSize + off] = (byte) c3;
+        } else if ((i >> 24) == 0) {
+            bytes = new byte[6 * charSize];
+            bytes[0 * charSize + off] = (byte) (c1 >> 8);
+            bytes[1 * charSize + off] = (byte) c1;
+            bytes[2 * charSize + off] = (byte) (c2 >> 8);
+            bytes[3 * charSize + off] = (byte) c2;
+            bytes[4 * charSize + off] = (byte) (c3 >> 8);
+            bytes[5 * charSize + off] = (byte) c3;
+        } else if ((i >> 28) == 0) {
+            bytes = new byte[7 * charSize];
+            bytes[0 * charSize + off] = (byte) c0;
+            bytes[1 * charSize + off] = (byte) (c1 >> 8);
+            bytes[2 * charSize + off] = (byte) c1;
+            bytes[3 * charSize + off] = (byte) (c2 >> 8);
+            bytes[4 * charSize + off] = (byte) c2;
+            bytes[5 * charSize + off] = (byte) (c3 >> 8);
+            bytes[6 * charSize + off] = (byte) c3;
+        } else {
+            bytes = new byte[8 * charSize];
+            bytes[0 * charSize + off] = (byte) (c0 >> 8);
+            bytes[1 * charSize + off] = (byte) c0;
+            bytes[2 * charSize + off] = (byte) (c1 >> 8);
+            bytes[3 * charSize + off] = (byte) c1;
+            bytes[4 * charSize + off] = (byte) (c2 >> 8);
+            bytes[5 * charSize + off] = (byte) c2;
+            bytes[6 * charSize + off] = (byte) (c3 >> 8);
+            bytes[7 * charSize + off] = (byte) c3;
+        }
+
+        return JDKUtils.STRING_CREATOR_JDK11.apply(bytes, coder);
     }
 }
