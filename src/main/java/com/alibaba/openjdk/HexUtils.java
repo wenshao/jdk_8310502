@@ -8,7 +8,7 @@ import static com.alibaba.fastjson2.util.JDKUtils.LATIN1;
 import static com.alibaba.fastjson2.util.JDKUtils.UTF16;
 
 public class HexUtils {
-    static final boolean COMPACT_STRINGS = false;
+    static final boolean COMPACT_STRINGS = true;
 
     public static String toHexString(int i) {
         char[] hex256 = UUIDUtils.DigitCache.HEX256;
