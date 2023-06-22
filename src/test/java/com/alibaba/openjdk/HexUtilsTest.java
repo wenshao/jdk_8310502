@@ -33,8 +33,8 @@ public class HexUtilsTest {
 
         for (int i = 0; i < values.length; i++) {
             int v = values[i];
-            assertEquals(Integer.toHexString(v), HexUtils.toHexString(v));
-            assertEquals(Integer.toHexString(-v), HexUtils.toHexString(-v));
+            assertEquals(new String(Integer.toHexString(v).getBytes()), new String(HexUtils.toHexString(v).getBytes()));
+            assertEquals(new String(Integer.toHexString(-v).getBytes()), new String(HexUtils.toHexString(-v).getBytes()));
         }
     }
 
@@ -67,8 +67,8 @@ public class HexUtilsTest {
 
         for (int i = 0; i < values.length; i++) {
             long v = values[i];
-            assertEquals(Long.toHexString(v), HexUtils.toHexString(v));
-            assertEquals(Long.toHexString(-v), HexUtils.toHexString(-v));
+            assertEquals(new String(Long.toHexString(v).getBytes()), new String(HexUtils.toHexString(v).getBytes()));
+            assertEquals(new String(Long.toHexString(-v).getBytes()), new String(HexUtils.toHexString(-v).getBytes()));
         }
     }
 

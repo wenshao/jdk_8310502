@@ -35,8 +35,8 @@ public class UUIDUtilsTest {
 
     @Test
     public void printHex256() {
-        final char[] hex256 = UUIDUtils.HEX256;
-        for (int i = 0; i < UUIDUtils.HEX256.length; i++) {
+        final char[] hex256 = UUIDUtils.DigitCache.HEX256;
+        for (int i = 0; i < UUIDUtils.DigitCache.HEX256.length; i++) {
             if (i != 0) {
                 System.out.print(", ");
             }
