@@ -100,8 +100,6 @@ public class DigitsUtils {
             pos += 4;
         }
 
-//        buf[pos] = (byte) (v2 >> 16);
-//        buf[pos + 1] = (byte) (v2 >> 8);
         ByteArray.setChar(buf, pos, (char) ((v2 >> 8) & 0xffff));
         ByteArray.setInt(buf, pos + 2, (((byte) v2) << 24) | (v1 & 0xffffff));
         return JDKUtils.STRING_CREATOR_JDK11.apply(buf, LATIN1);
