@@ -34,8 +34,7 @@ public class DigitsUtils {
             }
 
             if (start == 0) {
-                buf[pos] = (byte) (v >> 16);
-                buf[pos + 1] = (byte) (v >> 8);
+                ByteArray.setChar(buf, pos, (char) ((v >> 8) & 0xffff));
                 pos += 2;
             } else if (start == 1) {
                 buf[pos++] = (byte) (v >> 8);
@@ -58,16 +57,12 @@ public class DigitsUtils {
             }
 
             if (start == 0) {
-                buf[pos] = (byte) (v2 >> 16);
-                buf[pos + 1] = (byte) (v2 >> 8);
+                ByteArray.setChar(buf, pos, (char) ((v2 >> 8) & 0xffff));
                 pos += 2;
             } else if (start == 1) {
                 buf[pos++] = (byte) (v2 >> 8);
             }
-            buf[pos] = (byte) v2;
-            buf[pos + 1] = (byte) (v1 >> 16);
-            buf[pos + 2] = (byte) (v1 >> 8);
-            buf[pos + 3] = (byte) v1;
+            ByteArray.setInt(buf, pos, (((byte) v2) << 24) | (v1 & 0xffffff));
             return JDKUtils.STRING_CREATOR_JDK11.apply(buf, LATIN1);
         }
 
@@ -86,8 +81,7 @@ public class DigitsUtils {
             }
 
             if (start == 0) {
-                buf[pos] = (byte) (v >> 16);
-                buf[pos + 1] = (byte) (v >> 8);
+                ByteArray.setChar(buf, pos, (char) ((v >> 8) & 0xffff));
                 pos += 2;
             } else if (start == 1) {
                 buf[pos++] = (byte) (v >> 8);
@@ -101,20 +95,15 @@ public class DigitsUtils {
             }
 
             final int r3 = q2 - q3 * 1000;
-            buf[pos] = (byte) (q3 + '0');
             int v = DIGITS_K[r3];
-            buf[pos + 1] = (byte) (v >> 16);
-            buf[pos + 2] = (byte) (v >> 8);
-            buf[pos + 3] = (byte) v;
+            ByteArray.setInt(buf, pos, (((byte) (q3 + '0')) << 24) | (v & 0xffffff));
             pos += 4;
         }
 
-        buf[pos] = (byte) (v2 >> 16);
-        buf[pos + 1] = (byte) (v2 >> 8);
-        buf[pos + 2] = (byte) v2;
-        buf[pos + 3] = (byte) (v1 >> 16);
-        buf[pos + 4] = (byte) (v1 >> 8);
-        buf[pos + 5] = (byte) v1;
+//        buf[pos] = (byte) (v2 >> 16);
+//        buf[pos + 1] = (byte) (v2 >> 8);
+        ByteArray.setChar(buf, pos, (char) ((v2 >> 8) & 0xffff));
+        ByteArray.setInt(buf, pos + 2, (((byte) v2) << 24) | (v1 & 0xffffff));
         return JDKUtils.STRING_CREATOR_JDK11.apply(buf, LATIN1);
     }
 }
