@@ -61,8 +61,9 @@ public class UUIDUtils {
     }
 
     static String fastUUID0(long lsb, long msb, boolean COMPACT_STRINGS) {
-        final char[] hex256 = HEX256;
-        char i = hex256[((int) (msb >> 56)) & 0xff];
+        char[] hex256 = UUIDUtils.HEX256;
+
+        char i0 = hex256[((int) (msb >> 56)) & 0xff];
         char i1 = hex256[((int) (msb >> 48)) & 0xff];
         char i2 = hex256[((int) (msb >> 40)) & 0xff];
         char i3 = hex256[((int) (msb >> 32)) & 0xff];
@@ -79,7 +80,7 @@ public class UUIDUtils {
         char i14 = hex256[(((int) lsb) >> 8) & 0xff];
         char i15 = hex256[((int) lsb) & 0xff];
 
-        final Byte coder;
+        final byte coder;
         final int charSize;
         final int off;
         if (COMPACT_STRINGS) {
@@ -91,11 +92,10 @@ public class UUIDUtils {
             charSize = 2;
             off = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? 1 : 0;
         }
-
         final byte[] buf = new byte[36 * charSize];
 
-        buf[off] = (byte) (i >> 8);
-        buf[1 * charSize + off] = (byte) i;
+        buf[off] = (byte) (i0 >> 8);
+        buf[1 * charSize + off] = (byte) i0;
         buf[2 * charSize + off] = (byte) (i1 >> 8);
         buf[3 * charSize + off] = (byte) i1;
         buf[4 * charSize + off] = (byte) (i2 >> 8);
